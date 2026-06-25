@@ -15,7 +15,23 @@ import os
 import shutil
 from pathlib import Path
 from typing import Optional
+import stat
 
+
+def rmtree_onerror(func, path, exc_info):
+    """
+    Error handler for shutil.rmtree.
+    
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+    
+    If the error is for another reason it re-raises the error.
+    """
+    if not os.access(path, os.W_OK):
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
 
 # Default directory where repos are cloned
 DEFAULT_CLONE_BASE = os.path.join(os.path.expanduser("~"), ".codelens", "repos")
@@ -85,7 +101,7 @@ class RepoCloner:
         # Handle existing clone
         if os.path.exists(clone_path):
             if force_reclone:
-                shutil.rmtree(clone_path)
+                shutil.rmtree(clone_path, onerror=rmtree_onerror)
             else:
                 # Already cloned — could pull latest, but for now just reuse
                 return clone_path, repo_id
@@ -104,7 +120,7 @@ class RepoCloner:
         """Remove a cloned repository from disk."""
         clone_path = self.get_clone_path(repo_id)
         if os.path.exists(clone_path):
-            shutil.rmtree(clone_path)
+            shutil.rmtree(clone_path, onerror=rmtree_onerror)
     
     def list_source_files(
         self, 
