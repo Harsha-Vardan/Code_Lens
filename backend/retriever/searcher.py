@@ -73,7 +73,8 @@ class HybridSearcher:
             qdrant_url: URL of the Qdrant instance
             collection_name: Name of the Qdrant collection to search
         """
-        self.client = QdrantClient(url=qdrant_url)
+        qdrant_path = os.path.join(METADATA_DIR, "qdrant_storage")
+        self.client = QdrantClient(path=qdrant_path)
         self.collection_name = collection_name
         self.embedder = Embedder()
         self._vocab_cache: dict[str, dict] = {}  # repo_id → vocab
@@ -234,30 +235,26 @@ class HybridSearcher:
         # Dense search — semantic similarity
         # Embeds the query and finds the nearest vectors in embedding space
         query_embedding = self.embedder.embed_query(query)
-        dense_results = self.client.search(
+        dense_results = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=NamedVector(
-                name="dense", 
-                vector=query_embedding.tolist()
-            ),
+            query=query_embedding.tolist(),
+            using="dense",
             query_filter=repo_filter,
             limit=top_k,
             with_payload=True,
-        )
+        ).points
         
         # Sparse search — keyword/BM25 match
         # Converts query to sparse vector and finds matching documents
-        query_sparse = self.query_to_sparse(query, vocab)
-        sparse_results = self.client.search(
+        sparse_query = self.query_to_sparse(query, vocab)
+        sparse_results = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=NamedSparseVector(
-                name="sparse", 
-                vector=query_sparse
-            ),
+            query=sparse_query,
+            using="sparse",
             query_filter=repo_filter,
             limit=top_k,
             with_payload=True,
-        )
+        ).points
         
         # Fuse with RRF
         fused = self.reciprocal_rank_fusion(

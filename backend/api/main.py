@@ -299,6 +299,8 @@ async def query_codebase(req: QueryRequest):
                    f"Please index it first via POST /api/index"
         )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500, 
             detail=f"Query failed: {str(e)}"
