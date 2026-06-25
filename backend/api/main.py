@@ -256,14 +256,8 @@ async def query_codebase(req: QueryRequest):
     from backend.retriever.generator import Generator
     
     qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-    api_key = os.getenv("ANTHROPIC_API_KEY")
     
-    if not api_key:
-        raise HTTPException(
-            status_code=500, 
-            detail="ANTHROPIC_API_KEY not configured"
-        )
-    
+
     try:
         # Step 1: Hybrid search — retrieve top 20 candidates
         searcher = HybridSearcher(qdrant_url, "codelens_chunks")
@@ -292,8 +286,8 @@ async def query_codebase(req: QueryRequest):
             top_k=req.top_k
         )
         
-        # Step 3: Generate answer with Claude
-        generator = Generator(api_key=api_key)
+        # Step 3: Generate answer
+        generator = Generator()
         result = generator.generate(req.question, top_chunks)
         
         return result

@@ -12,8 +12,9 @@ sentence-transformers>=2.7.0
 # BM25 Keyword Search
 rank-bm25>=0.2.2
 
-# LLM API — Claude for answer generation
-anthropic>=0.25.0
+# LLM API — answer generation (pick one or both)
+google-genai>=1.0.0       # Gemini (FREE tier — recommended)
+anthropic>=0.25.0          # Claude (paid — optional, higher quality)
 
 # Web Framework
 fastapi>=0.111.0
