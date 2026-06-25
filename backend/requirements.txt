@@ -1,0 +1,29 @@
+# AST Parsing — tree-sitter and language grammars
+tree-sitter>=0.21.0
+tree-sitter-python>=0.21.0
+tree-sitter-javascript>=0.21.0
+
+# Vector Database
+qdrant-client>=1.9.0
+
+# Embedding & Re-ranking Models
+sentence-transformers>=2.7.0
+
+# BM25 Keyword Search
+rank-bm25>=0.2.2
+
+# LLM API — Claude for answer generation
+anthropic>=0.25.0
+
+# Web Framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# Git Operations
+gitpython>=3.1.43
+
+# Utilities
+python-dotenv>=1.0.1
+pydantic>=2.7.0
+redis>=5.0.0
+numpy>=1.26.0
